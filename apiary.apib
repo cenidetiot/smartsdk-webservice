@@ -1,80 +1,540 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: https://smartsecurity-webservice.herokuapp.com
 
 # smartsecurity-web-service
 
-Data Models' Web Service - SmartSecurity Scenario of project SMARTSDK
+This specification defines smartsecurity-web-service API. The smartsecurity-web-service is an API Rest implementation built it with the environment NodeJS, smartsecurity-web-service allows to manage the information provided of three different sources, the first one is the Orion Contextbroker GE of Fiware used to manage the context information, the second one CrateDB used by Quamtumleap GE of Fiware to store time series information and finally the DBMS MariaDB used to store the complementary information.
+## Data Models
 
-## Questions Collection [/questions]
+### Zone 
+The Zone data model is based on [Building data model of Fiware](https://github.com/Fiware/dataModels/tree/master/specs/Building/Building). The Building data model is used in the SmartSecurity application to delimit the space geographic occupied by an organization, as well as its characteristics. This data model has been defined following the GSMA Building data model adopted recently as a FIWARE data model. It is important to note that, the Building data model does not have the "name" attribute; for our application this is required. For this reason, we have added the name of the zone within the owner attribute of this data model. This model is also used to model other building or a “zone” of an organization; for this reason, we use the category attribute to define if a building is a zone.
 
-### List All Questions [GET]
+### Parking
+The Parking data model is based on [OffStreetParking data model of Fiware](https://github.com/Fiware/dataModels/tree/master/specs/Parking/OffStreetParking), Parking model is used in the Smart Security application to delimit the geographic space of the parking lots that are within the of an organization, and describe its characteristics. In addition, this data model allow to reference to another data model that contains the parking within its area, through the areaServed attribute of this data model. For this reason, we use areaServed attribute to reference to the organization’s zone that contains the parking lot.
+
+### Road 
+The Road data model based on [Road data model of Fiware](https://github.com/Fiware/dataModels/tree/master/specs/Transportation/Road) is used in the SmartSecurity application to define the parking streets of an organization. Also this data model is used to define those streets that are within the geographic space of the organization.
+
+### Road Segment
+The RoadSegment data model based on [RoadSegment data model of Fiware](https://github.com/Fiware/dataModels/tree/master/specs/Transportation/RoadSegment) is used in the Smart Security application to describe the characteristics of segments in which a street can be divided; besides, this model provides attributes to detail the properties of the lines or lanes that the street segment contains.
+
+### User
+The user data model was designed especially for the Smart Security scenario, the user model complies with the basic attributes used for the Identity Manager of Fiware.
+
+### Device Token
+The Device Token data model was designed to complement the information used on Device data model of Fiware, the additional information including in Device Token include attributes used to send and manage the push notifications sent to the mobile application.
+
+### Alert
+The Alert Model is based on [Alert data model of Fiware](https://github.com/Fiware/dataModels/blob/master/specs/Alert/).
+
+### Device 
+The Device Model is based on [Device data model of Fiware](https://github.com/Fiware/dataModels/blob/master/specs/Device/Device/) using only the mandatory attributes.
+
+# Data Structures
+
+## Geometry (object)
+A geometry is a GeoJSON object where the type member's value is one of the following strings: "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon", or "GeometryCollection".
+
+<http://geojson.org/geojson-spec.html#geometry-objects>
+
+## Polygon (array)
+Coordinates of a Polygon are an array of LinearRing coordinate arrays. The first element in the array represents the exterior ring. Any subsequent elements represent interior rings (or holes).
+
+## Point (array)
+Coordinates o a especific point including longitude and latitude
+
+## Polyline (array)
+Coordinates of a Polygon an array on Line 
+
+### Zone (object)
+- category: University , Factory (array)
+- location (Polygon)
+- centerPoint: 18.876443, -99.22011499999999 (Point)
+- owner: Cenidet Palmira (string)
+- address: Interior Internado Palmira S/N, Palmira, 62490 Cuernavaca, Mor. (string)
+- description: Campus Cenidet (string)
+
+### CompleteZone (Zone)
+- idZone (string)
+- dateCreated (string)
+- dateModified (string) 
+- status: 1 (string)
+
+### Parking (object)
+
+- category: Private, For employees, For Visitors, For Students (array)
+- location (Polygon)
+- name: Estacionamiento 1,
+- description: Estacionamiento 1,
+
+### CompleteParking (Parking)
+- idOffStreetParking: OffStreetParking_1534802604754 (string)
+- type: OffStreetParking (string)
+- areaServed: Zone_1525368918624 (string)
+- dateCreated (string)
+- dateModified (string)
+- status: 1 (string)
+
+### Road (object)
+- name: Av. Palmira (string)
+- description: Avenida Palmira (string)
+- responsible: Zone_1524284309191 (string)
+
+
+### CompleteRoad (Road)
+- idRoad: Road_1534803087609 (string)
+- type: Road (string)
+- dateCreated (string)
+- dateModified (string)
+- status: 1 (string)
+
+### RoadSegment (object)
+- location (Polyline)
+- startPoint: 18.88186, 99.220417 (array[number])
+- endPoint: 18.88186, 99.220417 (array[number])
+- laneUsage: forward (array)
+- name: Av. Palmira 1 (string)
+- refRoad: Road_1534803087609 (string)
+- totalLaneNumber: 1 (number)
+- maximumAllowedSpeed: 10 (number)
+- minimumAllowedSpeed: 5 (number)
+- width: 5 (number)
+
+### CompleteRoadSegment (RoadSegment)
+- idRoadSegment: RoadSegment_1534803216079 (string)
+- type: RoadSegment (string)
+- dateCreated (string)
+- dateModified (string)
+- status: 0 (string)
+
+### DeviceToken (object)
+- refDevice: Device_Smartphone_1fb5e1d94fbe3b07 (string)
+- fcmToken: ftdRdA_u5RA:APA91bH8ydZgC1XkXE9BnczVpwFk3fjaYRpgckPyctZ9hTiedd-kOF2sjvBtD5WrnFClmnSyjctLE3rKUwNDWq9aCLm1MMT0-f_m7HzKiW9W3KNqfa0li_lvRSdEkR2kx5zQmYgwk2E- (string)
+- preferences: All (string)
+
+### CompleteDeviceToken (DeviceToken)
+- idDeviceToken: DeviceToken_Device_Smartphone_1fb5e1d94fbe3b07 (string)
+- dateCreated (string)
+- dateModified (string)
+- status: 1 (string)
+
+### User 
+- firstName: "Micuenta",
+- lastName: "Pruebas",
+- email: "micuentapruebq@gmail.com"
+- userName: mi (string)
+- address (string)
+- phoneNumber: 217351191662 (string)
+
+### CompleteUser (User)
+- id: User_1529706391351 (string)
+- dateCreated (string)
+- dateModified (string)
+- status: 1 (string)
+
+### UserToken 
+- token (string)
+- user (CompleteUser)
+
+### Alert 
+- id: AlertDevice_Smartphone (string)
+- type: Alert (string)
+- alertSource: Device_Smartphone_ (string)
+- category: unknownAlert (string)
+- dateObserved (string) 
+- description: Unknown Alert (string)
+- location: 18.876708, -99.219859 (Point)
+- severity: critical (string)
+- subCategory: unknown (string)
+- validFrom (string)
+- validTo (string)
+
+### Device
+- id: Device_Smartphone (string)
+- type: Device (string)
+- accuracy: 3.700000048 (number)
+- batteryLevel: 52.999996185 (number)
+- category: smartphone (string) 
+- dateCreated (string)
+- dateModified (string)
+- ipAddress: 192.168.249.20 (string)
+- location: 18.876708, -99.219859 (Point)
+- osVersion: 5.1 (string)
+- owner : User_1537282536716 (string)
+- refDeviceModel: DeviceModel_TCL_ (string)
+- serialNumber: 4TZHB6RO99999999 (string)
+- time: 1521570000000 (number) 
+
+### CrateDevice
+- category (string)
+- entity_id (string)
+- entity_type (string)
+- location (Polygon)
+- owner (string)
+- time_index (string)
+
+### Entities (object)
+
+# Group Data Models API
+
+### Verification [GET /api]
 
 + Response 200 (application/json)
 
-        [
+    + Body 
+    
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
+                "message": "Welcome to DataModels API REST"
             }
-        ]
 
-### Create a New Question [POST]
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+
+### Zones [/api/zone]
+
+#### List Zones [GET /api/zone{?status}]
+
+
++ Parameters
+    + status: 1 (optional, string) - "1" gets all active entities, you can use "0" to reference inactives entities  
+
+
++ Response 200 (application/json)
+    - Attributes (array[CompleteZone])
+
+
+    
+        
+#### Retreive a zone [GET /api/zone/{idZone}]
+
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the zone
+
++ Response 200
+    - Attributes (CompleteZone)
+
+
+#### Create a Zone [POST]
+
++ Attributes (Zone)
 
 + Request (application/json)
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
++ Response 200
+
+
+#### Delete a zone [DELETE /api/zone/{idZone}]
+
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the parking
+
++ Response 204
+
+
+
+
+### Parking [/api/parking]
+
+#### List Parkings [GET /api/parking{?status}]
+
++ Parameters
+    + status: 1 (optional, string) - "1" gets all active entities, you can use "0" to reference inactives entities  
+
+
++ Response 200 (application/json)
+    - Attributes (array[CompleteParking])
+
+        
+#### Retreive a parking [GET /api/parking/{idOffStreetParking}]
+
++ Parameters
+    + idOffStreetParking: OffStreetParking_1534802604754 (string) ... Id of the parking
+
++ Response 200
+    - Attributes (CompleteParking)
+
+
+#### Create a parking [POST]
+
++ Attributes (Parking)
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (CompleteParking)
+
+
+#### Delete a parking [DELETE /api/parking/{idOffStreetParking}]
+
++ Parameters
+    + idOffStreetParking: OffStreetParking_1534802604754 (string) ... Id of the parking
+
++ Response 204
+
+
+### Road [/api/road]
+
+#### List Roads [GET /api/road{?status}]
+
++ Parameters
+    + status: 1 (optional, string) - "1" gets all active entities, you can use "0" to reference inactives entities  
+
+
++ Response 200 (application/json)
+    - Attributes (array[CompleteRoad])
+
+        
+#### Retreive a road [GET /api/road/{idRoad}]
+
++ Parameters
+    + idRoad: Road_1535062120621 (string) ... Id of the road
+
++ Response 200
+    - Attributes (CompleteRoad)
+
+
+#### Create a road [POST]
+
++ Attributes (Road)
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (CompleteRoad)
+
+
+#### Delete a road [DELETE /api/road/{idRoad}]
+
++ Parameters
+    + idRoad: Road_1535062120621 (string) ... Id of the road
+
++ Response 204
+
+
+### Road segment [/api/roadSegment]
+
+#### List road segments [GET /api/roadSegment{?status}]
+
++ Parameters
+    + status: 1 (optional, string) - "1" gets all active entities, you can use "0" to reference inactives entities  
+
+
++ Response 200 (application/json)
+    - Attributes (array[CompleteRoadSegment])
+
+        
+#### Retreive a road segment [GET /api/roadSegment/{idRoadSegment}]
+
++ Parameters
+    + idRoadSegment: RoadSegment_1534803216079 (string) ... Id of the road segment
+
++ Response 200
+    - Attributes (CompleteRoadSegment)
+
+
+#### Create a road segment [POST]
+
++ Attributes (RoadSegment)
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (CompleteRoadSegment)
+
+
+#### Delete a road segment [DELETE /api/roadSegment/{idRoadSegment}]
+
++ Parameters
+    + idRoadSegment: RoadSegment_1534803216079 (string) ... Id of the road segment
+
++ Response 204
+
+### Device Tokens [/api/device/token]
+
+#### List Device Tokens[GET /api/device/token{?status}]
+
++ Parameters
+    + status: 1 (optional, string) - "1" gets all active entities, you can use "0" to reference inactives entities  
+
+
++ Response 200 (application/json)
+    - Attributes (array[CompleteDeviceToken])
+
+        
+#### Retreive a Device Token [GET /api/device/token/{idDeviceToken}]
+
++ Parameters
+    + idDeviceToken: Device_Smartphone_1fb5e1d94fbe3b07 (string) ... Id of the device token
+
++ Response 200
+    - Attributes (CompleteDeviceToken)
+
+
+#### Create a Device Token [POST]
+
++ Attributes (DeviceToken)
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (CompleteDeviceToken)
+
+
+#### Delete a Device Token [DELETE /api/device/token/{idDeviceToken}]
+
++ Parameters
+    + idDeviceToken: Device_Smartphone_1fb5e1d94fbe3b07 (string) ... Id of the device token
+
++ Response 204
+
+### User [/api/user]
+
+#### List Users [GET /api/user{?status}]
+
++ Parameters
+    + status: 1 (optional, string) - "1" gets all active entities, you can use "0" to reference inactives entities  
+
+
++ Response 200 (application/json)
+    - Attributes (array[CompleteUser])
+
+
+#### Login [POST /api/user/login]
+
++ Attributes
+     - phoneNumber : 5217351191661 (string)
+     - password : micienta
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (UserToken)
+        
+#### Retreive a User [GET /api/user/{id}]
+
++ Parameters
+    + id: User_1537282536716 (string) ... Id of the user
+
++ Response 200
+    - Attributes (CompleteUser)
+
+
+#### Create a user[POST]
+
++ Attributes (User)
+     - password: mi (string)
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (CompleteUser)
+
+
+#### Delete a user [DELETE /api/user/{id}]
+
++ Parameters
+    + id: User_1537282536716 (string) ... Id of the user
+
++ Response 204
+
+# Group Special Services API
+
+### Verification [GET /service]
+
++ Response 200 (application/json)
+
+    + Body 
+    
+            {
+                "message": "Welcome to Especial Services API"
+            }
+
+### Alerts [/service/alerts/zone/]
+
+#### Retreive last ten alerts of the day on zone [GET /service/alerts/zone/current/{idZone}]
+
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the zone
+
++ Response 200 (application/json)
+    - Attributes (array[Alert])
+
+#### Retreive last ten alerts of last hour on zone [GET /service/alerts/zone/current/hour/{idZone}]
+
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the zone
+
++ Response 200
+    - Attributes (array[Alert])
+
+#### Retreive last ten alerts on the zone [GET /service/alerts/zone/history/{idZone}]
+
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the zone
 
 + Response 201 (application/json)
 
-    + Headers
+    + Header
+    
+            fiware-total-count: 44455
+            
+    - Attributes (array[Alert])
+    
 
-            Location: /questions/2
+### Devices [/service/devices/zone/]
 
-    + Body
+#### Retreive the devices on a zone [GET /service/devices/{idZone}]
 
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the zone
+
++ Response 200
+    - Attributes (array[Device])
+
+#### Retreive the device that belongs to the user on the zone [GET /devices/zone/{idZone}/owner{?phoneNumber}]
+
++ Parameters
+    + idZone: Zone_1537468126033 (string) ... Id of the zone
+    + phoneNumber: 5217351191662
+
++ Response 200
+    - Attributes (array[Device])
+    
+### Query [/service/query]
+
+#### Make a query consult [POST]
+
++ Attributes
+    - id (string)
+    - type (string)
+    - options (string)
+    - georel (string)
+    - geometry (string)
+    - coords (Polygon)
+
++ Request (application/json)
+
++ Response 200
+    - Attributes (array[Entities])
+
+
+# Group CrateDB Api 
+
+#### Verification [GET /crate]
+
++ Response 200 (application/json)
+
+    + Body 
+    
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+                "message": "Welcome to CRATE API"
             }
+
+#### Retreive the device of user that was on the zone [GET /crate/locationOwnerDateTime{?owner,date,time}]
+
++ Parameters
+    + owner: User_1537282536716 (string) ... Id of the zone
+    + date: 2018-02-08 (string)
+    + time: 12 (number)
+
++ Response 200
+    - Attributes (array[CrateDevice])

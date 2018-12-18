@@ -22,6 +22,12 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 app.use(cors())
 
+//Root endpoint
+app.route('/')
+	.get((req, res, next) => {res.json({ message: 'Welcome to Smart Security Web Service' });
+});
+
+//Specific endpoints
 app.use('/api', dataModelsApi)
 app.use('/crate', crateApi)
 app.use('/service', servicesApi)
